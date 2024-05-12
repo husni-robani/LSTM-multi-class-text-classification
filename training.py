@@ -70,13 +70,11 @@ config = {
 model = LSTMClassifier(input_size=config["input_size"], hidden_size=config["hidden_size"], num_layers=config['num_layers'], num_classes=config["num_classes"], dropout=config["dropout"])
 optimizer = torch.optim.AdamW(model.parameters(), lr=config["learning_rate"])
 criterion = nn.CrossEntropyLoss()
-callback = Callback(model=model, outdir='log/log1')
+callback = Callback(model=model, outdir='log')
 
 
 print('\n')
 print("==========================TRAINING START==========================")
-
-# BUG: INFINITE LOOP WHEN THE LAST EPOCH HAS RUNNING (TRY TO TRAINING)
 
 while True:
     # data training
@@ -106,7 +104,7 @@ print('\n')
 print("==========================TRAINING END==========================")
 
 # Save Models
-torch.save(model.state_dict(), "log/log1/lstm_model.pt")
+torch.save(model.state_dict(), "log/lstm_model.pt")
 
 # Confusion Matrix
 engine.model_evaluation_with_confusion_matrix(model=model, test_loader=test_loader)
