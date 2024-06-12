@@ -18,7 +18,6 @@ try:
     w2v_model = Word2Vec.load("core/w2v_model/w2v_model.w2v")
 except FileNotFoundError as e:
     raise f"FileError: {e}"
-
 # train test split
 X_train, X_test, y_train, y_test = train_test_split(df['abstract'].values, df['study_program'].values, stratify=df['study_program'], shuffle=True, random_state=42)
 
@@ -66,11 +65,22 @@ config = {
     "learning_rate": 0.0001
 }
 
+
+
 # defining m-c-o-c
-model = LSTMClassifier(input_size=config["input_size"], hidden_size=config["hidden_size"], num_layers=config['num_layers'], num_classes=config["num_classes"], dropout=config["dropout"])
-optimizer = torch.optim.AdamW(model.parameters(), lr=config["learning_rate"])
+model = LSTMClassifier(input_size=config["input_size"], hidden_size=config["hidden_size"], num_layers=config['num_layers'], 
+num_classes=config["num_classes"], dropout=config["dropout"])
+# Hyper-Parameter options
+optimizer_options = {
+    "opt_1": torch.optim.AdamW(model.parameters(), lr=0.001),
+    "opt_2": torch.optim.Adagrad(model.parameters(), lr=0.001),
+    "opt_3": torch.optim.AdamW(model.parameters(), lr=0.0001),
+    "opt_4": torch.optim.Adagrad(model.parameters(), lr=0.001)
+}
+optimizer = optimizer_options["opt_4"]
+print(f"OPTIMIZER: {optimizer}")
 criterion = nn.CrossEntropyLoss()
-callback = Callback(model=model, outdir='log')
+callback = Callback(model=model, outdir='log/model_5')
 
 
 print('\n')
@@ -104,7 +114,7 @@ print('\n')
 print("==========================TRAINING END==========================")
 
 # Save Models
-torch.save(model.state_dict(), "log/lstm_model.pt")
+torch.save(model.state_dict(), "log/model_5/lstm_model.pt")
 
 # Confusion Matrix
 engine.model_evaluation_with_confusion_matrix(model=model, test_loader=test_loader)
