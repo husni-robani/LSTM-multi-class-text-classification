@@ -1,3 +1,7 @@
+"""
+This file provide several function that helps training process
+"""
+
 from tqdm.auto import tqdm
 import torch
 import matplotlib.pyplot as plt
