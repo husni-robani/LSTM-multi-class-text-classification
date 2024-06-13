@@ -26,15 +26,15 @@ class DataSetup():
         self.w2v_model = w2v_model
         self.__is_oversamping = is_oversampling
         
-    def processing_data(self):
-        """This is the main method, where the data will be processing to give the ideal data form."""
-        X_train, X_test, y_train, y_test = self.__X_train, self.__X_test, self.__y_train, self.__y_test
+    def processing_data_train(self):
+        """This Method used for preprocessing data train"""
+        X_train, y_train = self.__X_train, self.__y_train
 
         # encode labels
         print('\n')
-        with tqdm(total=(len(y_test) + len(y_train)), desc="Encode Labels") as pbar:
+        with tqdm(total=(len(y_train)), desc="Encode Labels") as pbar:
             encode_fn = np.vectorize(self.__encode_study_program)
-            y_train, y_test = encode_fn(y_train, pbar), encode_fn(y_test, pbar)
+            y_train = encode_fn(y_train, pbar)
     
 
         # oversampling train data
@@ -44,31 +44,59 @@ class DataSetup():
 
         # remove punctuations
         print('\n')
-        with tqdm(total=(len(X_train) + len(X_test)), desc="Remove Punctuations") as pbar:
+        with tqdm(total=(len(X_train)), desc="Remove Punctuations") as pbar:
             rp_fn = np.vectorize(self.__remove_punctuations)
-            X_train, X_test = rp_fn(X_train, pbar), rp_fn(X_test, pbar)
+            X_train= rp_fn(X_train, pbar)
 
         # remove stopwords
         print('\n')
-        with tqdm(total=(len(X_train) + len(X_test)), desc="Remove Stopwords") as pbar:
-            X_train, X_test = np.vectorize(self.__remove_stopwords)(X_train, pbar), np.vectorize(self.__remove_stopwords)(X_test, pbar)
+        with tqdm(total=(len(X_train)), desc="Remove Stopwords") as pbar:
+            X_train= np.vectorize(self.__remove_stopwords)(X_train, pbar)
 
         # lemmatization
         print('\n')
         X_train = self.__lemmatization(X_train)
+
+        # tokenize, vectorize, padding
+        print('\n')
+        X_train = self.__collate_fn(X_train)
+
+
+
+        return X_train, y_train
+        
+    def processing_data_test(self):
+        """This Method used for preprocessing data test"""
+        X_test, y_test = self.__X_test, self.__y_test
+
+        # encode labels
+        print('\n')
+        with tqdm(total=(len(y_test)), desc="Encode Labels") as pbar:
+            encode_fn = np.vectorize(self.__encode_study_program)
+            y_test = encode_fn(y_test, pbar)
+
+        # remove punctuations
+        print('\n')
+        with tqdm(total=(len(X_test)), desc="Remove Punctuations") as pbar:
+            rp_fn = np.vectorize(self.__remove_punctuations)
+            X_test = rp_fn(X_test, pbar)
+
+        # remove stopwords
+        print('\n')
+        with tqdm(total=(len(X_test)), desc="Remove Stopwords") as pbar:
+            X_test = np.vectorize(self.__remove_stopwords)(X_test, pbar)
+
+        # lemmatization
         print('\n')
         X_test = self.__lemmatization(X_test)
 
         # tokenize, vectorize, padding
         print('\n')
-        X_train = self.__collate_fn(X_train)
-        print('\n')
         X_test = self.__collate_fn(X_test)
 
 
 
-        return X_train, X_test, y_train, y_test
-        
+        return X_test, y_test
 
     def __encode_study_program(self, label, pbar=None):
         """Encode the labels tobe numerical representation"""

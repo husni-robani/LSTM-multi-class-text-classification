@@ -17,7 +17,7 @@ try:
     df = pd.read_csv("data/abstract_dataset.csv")
     w2v_model = Word2Vec.load("core/w2v_model/w2v_model.w2v")
 except FileNotFoundError as e:
-    raise f"FileError: {e}"
+    print(f"FileError: {e}")
 # train test split
 X_train, X_test, y_train, y_test = train_test_split(df['abstract'].values, df['study_program'].values, stratify=df['study_program'], shuffle=True, random_state=42)
 
@@ -25,9 +25,10 @@ X_train, X_test, y_train, y_test = train_test_split(df['abstract'].values, df['s
 datasetup = DataSetup(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, w2v_model=w2v_model, is_oversampling=True)
 try:
     print("==========================PREPROCESSING START==========================")
-    X_train, X_test, y_train, y_test = datasetup.processing_data()
+    X_train, y_train = datasetup.processing_data_train()
+    X_test, y_test = datasetup.processing_data_test()
 except Exception as e:
-    raise f"Error on preprocessing \n {e}"
+    print(f"Error on preprocessing \n {e}")
 else:
     print('\n')
     print("==========================PREPROCESSING DONE==========================")
@@ -37,14 +38,14 @@ try:
     train_set = TextDataset(texts=X_train, labels=y_train)
     test_set = TextDataset(texts=X_test, labels=y_test)
 except Exception as e:
-    raise f"Error on creating dataset\n{e}"
+    print(f"Error on creating dataset\n{e}")
 
 # DataLoader
 try:
     train_loader = DataLoader(dataset=train_set, batch_size=64, shuffle=True)
     test_loader = DataLoader(dataset=test_set, batch_size=64)
 except Exception as e:
-    raise f"Error on creating dataloader\n{e}"
+    print(f"Error on creating dataloader\n{e}")
 
 train_iter, test_iter = iter(train_loader), iter(test_loader)
 train_batch, test_batch = next(train_iter), next(test_iter)
