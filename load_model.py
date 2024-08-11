@@ -83,17 +83,19 @@ config = {
     "learning_rate": 0.0001
 }
 # define model
+log_path = 'log/model_3/'
+
 model = LSTMClassifier(input_size=config["input_size"], hidden_size=config["hidden_size"], num_layers=config['num_layers'], num_classes=config["num_classes"], dropout=config["dropout"])
-model.load_state_dict(torch.load('log/model_4/lstm_model.pt'))
+model.load_state_dict(torch.load(log_path + 'lstm_model.pt'))
 
 # define logs
-logs = torch.load('log/model_4/logs.pth')
+logs = torch.load(log_path + 'logs.pth')
 
 # define class
 model_evaluation_obj = EvaluatePretrainedModel(model= model, logs=logs)
 
 # generate confusion matrix
-# model_evaluation_obj.generate_confusion_matrix_model()
+model_evaluation_obj.generate_confusion_matrix_model()
 
 # generate plot cost
 model_evaluation_obj.generate_plot_cost()
