@@ -5,8 +5,7 @@ This file provide several function that helps training process
 from tqdm.auto import tqdm
 import torch
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
 import numpy as np
 
 def loop_fn(mode, dataset, dataloader, model, criterion, optimizer):
@@ -46,11 +45,8 @@ def model_evaluation_with_confusion_matrix(model, test_loader):
             all_predictions.extend(predicted.numpy())
 
     cm = confusion_matrix(all_labels, all_predictions)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=range(5), yticklabels=range(5))
-    plt.xlabel("Predicted Label")
-    plt.ylabel("True Label")
-    plt.title("Confusion Matrix")
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1, 2, 3, 4])
+    disp.plot(cmap=plt.cm.Blues)
     plt.show()
 
     accuracy = np.trace(cm) / np.sum(cm) * 100
